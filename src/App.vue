@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="app">
-      <ThreeboxExample />
+      <Map />
     </div>
     <div id="area_box">
       <AreaBox />
@@ -13,19 +13,18 @@
 </template>
 
 <script>
-import ThreeboxExample from "./components/ThreeboxExample";
+import Map from "./components/Map";
 import AreaBox from "./components/AreaBox";
 import TextInput from "./components/TextInput";
 
 export default {
   name: "App",
   components: {
-    ThreeboxExample,
+    Map,
     AreaBox,
-    TextInput
+    TextInput,
   },
 };
-
 </script>
 
 <style>
@@ -49,4 +48,18 @@ html {
   height: 100vh;
 }
 
+#vue-range-slider {
+  position: absolute;
+  width: 200px;
+  float: left;
+  top: 100px;
+  left: 10px;
+  z-index: 1;
+}
+
+.navbar {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+}
 </style>

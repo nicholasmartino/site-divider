@@ -1,0 +1,59 @@
+{
+  "name": "vue-threebox-sample",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@turf/line-chunk": "^6.5.0",
+    "@turf/polygon-to-line": "^6.5.0",
+    "@turf/turf": "^6.5.0",
+    "@vue/cli-plugin-babel": "4.1.1",
+    "mapbox-gl": "2.0.1",
+    "mapbox-gl-draw": "^0.16.0",
+    "three": "^0.134.0",
+    "threebox-plugin": "2.1.9",
+    "turf": "^3.0.14",
+    "vue": "^2.6.11",
+    "vue-range-component": "^1.0.3",
+    "vue-slider-component": "^3.2.15",
+    "vuex": "^3.6.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-eslint": "4.1.1",
+    "@vue/cli-service": "4.1.1",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.0.1",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
+  "keywords": [],
+  "description": ""
+}

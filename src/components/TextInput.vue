@@ -44,7 +44,7 @@ export default {
 }
 
 .filter-ctrl input[type='text'] {
-  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font: 12px/20px 'Avenir', Arial, Helvetica, sans-serif;
   width: 100%;
   border: 0;
   background-color: #fff;
