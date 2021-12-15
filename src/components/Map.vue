@@ -22,7 +22,7 @@ threebox
 
 
 // Calculate the area of drawn polygons
-export function updateArea(draw) {
+function updateArea(draw) {
     const data = draw.getAll();
     const answer = document.getElementById('calculated-area');
     if (data.features.length > 0) {
@@ -40,7 +40,7 @@ export function updateArea(draw) {
 
 
 // Returns true if finds a defined key in the input array of dictionaries
-export function keyInDictionary (dictionaries, keyToFind) {
+function keyInDictionary (dictionaries, keyToFind) {
     for (var i in dictionaries) {
         if (dictionaries[i]['id'] == keyToFind) {
             return true
@@ -50,7 +50,7 @@ export function keyInDictionary (dictionaries, keyToFind) {
 
 
 // Returns a list of centroids of multiple LineStrings
-export function lineCentroids(lines) {
+function lineCentroids(lines) {
   const centroids = [];
   for (let i = 0; i < lines.features.length; i++) {
     const line = turf.lineString(lines.features[i])
@@ -62,21 +62,21 @@ export function lineCentroids(lines) {
 
 
 // Returns points along a LineString divided according to a specified length in meters
-export function divideLineString(line, length=100) {
+function divideLineString(line, length=100) {
   const chunks = turf.lineChunk(line, length, {units: 'meters'})
   return lineCentroids(chunks)
 }
 
 
 // Extract drawn shape and convert it to a polygon
-export function getPolygonDrawn(draw){
+function getPolygonDrawn(draw){
   const data = draw.getAll()
   return turf.polygon(data.features[0]['geometry']['coordinates'])
 }
 
 
 // Extract internal skeleton of a shape
-export function voronoiSkeleton(draw){
+function voronoiSkeleton(draw){
   const pol = getPolygonDrawn(draw)
   const line = turf.polygonToLine(pol)
   const chunks = turf.lineChunk(line, 0.01)
@@ -111,7 +111,7 @@ export function voronoiSkeleton(draw){
 
 
 // Generate skeleton and buffer according to some number of iterations
-export function bufferDrawSkeleton(skeleton) {
+function bufferDrawSkeleton(skeleton) {
   const bufferedSkeletons = []
   for (let i = 0; i < 3; i++) {
     const skeletonBuffer = turf.buffer(skeleton, 30 * (i+1), {units: 'meters'})
@@ -123,7 +123,7 @@ export function bufferDrawSkeleton(skeleton) {
 
 
 // Subdivide a drawn shape using Voronoi patterns
-export function subdivideShape(draw) {
+function subdivideShape(draw) {
   const output = {}
   const skeleton = voronoiSkeleton(draw)
   output.skeleton = skeleton.features
@@ -144,25 +144,37 @@ export function subdivideShape(draw) {
     }
     output.perpendicularLines.push(turf.lineString(nearestPoints))
   }
-  console.log(output)
   return output
 }
 
 // Buffer generated lines according to buffer range and subtract from original drawing
-export function generateBlocks(draw, bufferRange) {
+function generateBlocks(draw, bufferRange) {
   const bufferOptions = {units: 'meters'}
   const subdivisions = subdivideShape(draw)
   const skeletonBuffer = turf.buffer(subdivisions.skeleton[0], bufferRange[1]/2, bufferOptions)
   const perpendicularsBuffered = turf.buffer(turf.featureCollection(subdivisions.perpendicularLines), (bufferRange[0] + bufferRange[1])/4, bufferOptions)
   const parallelsBuffered = turf.buffer(turf.featureCollection(subdivisions.voronoiSkeletonBuffers), bufferRange[0]/2, bufferOptions)
-  const allBuffers = turf.featureCollection(perpendicularsBuffered.features.concat(parallelsBuffered.features, skeletonBuffer))
-  const bufferedCenterlines = turf.dissolve(allBuffers)
-  const difference = turf.difference(getPolygonDrawn(draw), bufferedCenterlines.features[0])
-  return difference
+  const allBuffers = perpendicularsBuffered.features.concat(parallelsBuffered.features, skeletonBuffer)
+  
+  // Iterate over buffers to extract coords
+  const allBuffersCoords = []
+  for (let i = 0; i < allBuffers.length; i++) {
+    console.log(allBuffers[i])
+    const buffer = allBuffers[i].geometry.coordinates
+    allBuffersCoords.push(buffer)
+  }
+  // const bufferedCenterlines = turf.dissolve(allBuffers)
+  // console.log("Centelrines dissolved")
+  console.log(turf.multiPolygon(allBuffersCoords))
+  const difference = turf.difference(getPolygonDrawn(draw), turf.multiPolygon(allBuffersCoords))
+  console.log("Subtraction performed")
+  const simplified = turf.simplify(difference, {tolerance: 0.00001})
+  console.log("Simplification completed")
+  return simplified
 }
 
 
-export function deleteOutlineDraws(map) {
+function deleteOutlineDraws(map) {
   if (keyInDictionary(map.getStyle().layers, 'outline')) {
     map.removeLayer('outline')
   }
@@ -189,7 +201,7 @@ export function updateDraw(mapbox, draw, widthRange) {
 }
 
 
-export function createDraw(mapbox, draw, widthRange) {
+function createDraw(mapbox, draw, widthRange) {
   widthRange
   mapbox.addSource('draw', {
     'type': 'geojson',
@@ -403,7 +415,7 @@ export default {
     generatePolygons() {
       this.mapbox = this.$store.state.mapbox
       this.draw = this.$store.state.draw
-
+      console.log("Draw", this.draw)
       this.mapbox.on('draw.create', () => {
         updateArea(this.draw)
       })
