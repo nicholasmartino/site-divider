@@ -407,8 +407,14 @@ export default {
     addDrawControls() {
       // Add draw controls
       this.mapbox = this.$store.state.mapbox
-      const draw = new MapboxDraw();
-      this.mapbox.addControl(draw, 'top-right');
+      const draw = new MapboxDraw({
+          controls: {
+            polygon: true,
+            trash: true
+        },
+        defaultMode: 'draw_polygon'
+      });
+      this.mapbox.addControl(draw, 'top-left');
       this.$store.commit('setDraw', this.draw)
       this.draw = draw
     },

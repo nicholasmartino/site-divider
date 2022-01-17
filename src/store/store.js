@@ -42,9 +42,9 @@ export const store = new Vuex.Store({
       var mapbox = new mapboxgl.Map({
         container: "map",
         interactive: true,
-        style:  "mapbox://styles/mapbox/dark-v10",
-        zoom: 16,
-        center: [-123.1068658, 49.2626982],
+        style:  "mapbox://styles/mapbox/light-v10",
+        zoom: 13,
+        center: [-122.845821, 49.177020],
         pitch: 60,
         bearing: 360,
         antialias: true,
@@ -94,7 +94,24 @@ export const store = new Vuex.Store({
               'data': 'https://raw.githubusercontent.com/nicholasmartino/vue-threebox/master/public/data/property-parcel-polygons.geojson',
             });
 
-            // Add parcels layer to map
+            // Add parcels layer source (Surrey)
+            mapbox.addSource('property-parcel-polygons-surrey', {
+              'type': 'geojson',
+              'data': 'surrey-lots.json'
+            })
+
+            // Add Surrey parcels layer to map
+            mapbox.addLayer({
+              'id': 'property-parcel-polygons-surrey-shp',
+              'type': 'fill',
+              'source': 'property-parcel-polygons-surrey',
+              'paint': {
+                'fill-color': '#ffffff',
+                'fill-opacity': 0.2
+              }
+            })
+
+            // Add CoV parcels layer to map
             mapbox.addLayer({
               'id': 'property-parcel-polygons-shp',
               'type': 'fill',
@@ -181,8 +198,15 @@ export const store = new Vuex.Store({
     setDraw (context) {
       // Add draw controls
       console.log("Add draw")
-      const draw = new MapboxDraw();
-      this.state.mapbox.addControl(draw, 'top-right');
+      const draw = new MapboxDraw({
+        displayControlsDefault: false,
+          controls: {
+            polygon: true,
+            trash: true
+        },
+        defaultMode: 'draw_polygon'
+      });
+      this.state.mapbox.addControl(draw, 'top-left');
       context.commit('setDraw', draw)
     },
   }
