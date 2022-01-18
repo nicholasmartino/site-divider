@@ -97,7 +97,7 @@ export const store = new Vuex.Store({
             // Add parcels layer source (Surrey)
             mapbox.addSource('property-parcel-polygons-surrey', {
               'type': 'geojson',
-              'data': 'surrey-lots.json'
+              'data': './public/data/property-parcel-surrey.geojson'
             })
 
             // Add Surrey parcels layer to map
