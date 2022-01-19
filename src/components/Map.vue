@@ -1,9 +1,9 @@
 <template>
   <div>
     <div id="map" v-on:draw="generatePolygons()"></div>
-    <div id="vue-range-slider">
+    <!-- <div id="vue-range-slider">
       <RangeSlider v-on:changeValue="generatePolygons()"/>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import threebox from "threebox-plugin/dist/threebox";
 import { Threebox } from 'threebox-plugin';
 import Pulse from "./Pulses/Pulse";
 import * as turf from '@turf/turf';
-import RangeSlider from "./RangeSlider"
+// import RangeSlider from "./RangeSlider"
 
 
 let pulse = new Pulse(400, 4000, true);
@@ -24,20 +24,19 @@ threebox
 // Calculate the area of drawn polygons
 function updateArea(draw) {
     const data = draw.getAll();
-    const answer = document.getElementById('calculated-area');
-    if (data.features.length > 0) {
-      const area = turf.area(data);
+    const area_div = document.getElementById('calculated-area')
 
+    if (data.features.length > 0) {
+      const area = Math.round(turf.area(data) * 100) / 100
       // Restrict the area to 2 decimal points.
-      const rounded_area = Math.round(area * 100) / 100;
-      answer.innerHTML = `<p><strong>${rounded_area}</strong> m²</p>`;
+      area_div.innerHTML = `<p><strong>${area}</strong> m²</p>`
     } else {
-      answer.innerHTML = '';
+      area_div.innerHTML = `-`
+
       // if (e.type !== 'draw.delete')
       //   alert('Click the map to draw a polygon.');
   }
 }
-
 
 // Returns true if finds a defined key in the input array of dictionaries
 function keyInDictionary (dictionaries, keyToFind) {
@@ -201,6 +200,61 @@ export function updateDraw(mapbox, draw, widthRange) {
 }
 
 
+function getData(mapbox) {
+    mapbox.on('click', (e) => {
+    // Set `bbox` as 5px reactangle area around clicked point.
+    const bbox = [
+      [e.point.x - 5, e.point.y - 5],
+      [e.point.x + 5, e.point.y + 5]
+    ];
+    console.log(e)
+    console.log(bbox)
+    // Find features intersecting the bounding box.
+    
+    const selectedFeatures = mapbox.queryRenderedFeatures(bbox, {
+      layers: ['property-parcel-polygons-surrey']
+    })
+    console.log(selectedFeatures)
+    console.log(selectedFeatures[0].properties)
+    
+    const pids = selectedFeatures.map(
+      (feature) => feature.properties.PID
+    );
+
+    // Set a filter matching selected features by PID code
+    // to activate the 'counties-highlighted' layer.
+    mapbox.setFilter('property-parcel-polygons-surrey-highlighted', ['in', 'PID', ...pids]);
+
+    const area_div = document.getElementById('calculated-area')
+    const pid = document.getElementById('pid')
+    const freeform = document.getElementById('freeform')
+    const perimeter_div = document.getElementById('calculated-perimeter')
+    const zone = document.getElementById('zone')
+    const built_area = document.getElementById('built-area')
+
+    if (pids.length > 0) {
+      const geom = selectedFeatures[0].geometry
+      const area = Math.round(turf.area(geom) * 100) / 100
+      console.log(geom)
+      const perimeter = Math.round(turf.length(turf.polygonToLine(geom)) * 1000)
+      pid.innerHTML = '-'
+      area_div.innerHTML = `<p><strong>${area}</strong> m²</p>`
+      freeform.innerHTML = '-'
+      perimeter_div.innerHTML = `<p><strong>${perimeter}</strong> m</p>`
+      zone.innerHTML = '-'
+      built_area.innerHTML = '-'
+    } else {
+      area_div.innerHTML = '-'
+      pid.innerHTML = '-'
+      freeform.innerHTML = '-'
+      perimeter_div.innerHTML = '-'
+      zone.innerHTML = '-'
+      built_area.innerHTML = '-'
+    }
+  })
+}
+
+
 function createDraw(mapbox, draw, widthRange) {
   widthRange
   mapbox.addSource('draw', {
@@ -244,7 +298,7 @@ export default {
     },
   },
   components: {
-    RangeSlider
+    // RangeSlider
   },
   methods: {
     // loadMap (context) {
@@ -404,6 +458,7 @@ export default {
       });
       this.generatePolygons()
     },
+
     addDrawControls() {
       // Add draw controls
       this.mapbox = this.$store.state.mapbox
@@ -414,7 +469,7 @@ export default {
         },
         defaultMode: 'draw_polygon'
       });
-      this.mapbox.addControl(draw, 'top-left');
+      this.mapbox.addControl(draw, 'top-right');
       this.$store.commit('setDraw', this.draw)
       this.draw = draw
     },
@@ -436,6 +491,10 @@ export default {
         createDraw(this.mapbox, this.draw, this.widthRange)
       });
 
+      this.mapbox.on('click', () => {
+        getData(this.mapbox)
+      })
+
       this.mapbox.on('draw.delete', () => {
         deleteOutlineDraws(this.mapbox)
       });
@@ -455,7 +514,8 @@ export default {
 <style>
 #map {
   position: absolute;
-  width: 100vw;
+  margin-left: 30vw;
+  width: 70vw;
   height: 100vh;
 }
 @import "https://api.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.css";

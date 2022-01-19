@@ -61,66 +61,79 @@ export const store = new Vuex.Store({
 
           mapbox.on('load', () => {
 
-            // Add 3D terrain
-            mapbox.addSource('mapbox-dem', {
-              'type': 'raster-dem',
-              'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-              'tileSize': 512,
-              'maxzoom': 20
-            });
+            // // Add 3D terrain
+            // mapbox.addSource('mapbox-dem', {
+            //   'type': 'raster-dem',
+            //   'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            //   'tileSize': 512,
+            //   'maxzoom': 20
+            // });
 
-            // Add satellite map
-            mapbox.addSource('xyz-tile',{
-              'type': 'raster',
-              'tiles': ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-              'tileSize': 512,
-            })
+            // // Add satellite map data source
+            // mapbox.addSource('xyz-tile',{
+            //   'type': 'raster',
+            //   'tiles': ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+            //   'tileSize': 512,
+            // })
       
-            mapbox.addLayer({
-              'id': 'wms-test-layer',
-              'type': 'raster',
-              'source': 'xyz-tile',
-              'paint': {
-                'raster-opacity': 0.2,
-              }
-            })
+            // // Add satellite map data layer
+            // mapbox.addLayer({
+            //   'id': 'wms-test-layer',
+            //   'type': 'raster',
+            //   'source': 'xyz-tile',
+            //   'paint': {
+            //     'raster-opacity': 0.2,
+            //   }
+            // })
 
-            // add the DEM source as a terrain layer with exaggerated height
-            mapbox.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+            // // Add the DEM source as a terrain layer with exaggerated height
+            // mapbox.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
 
-            // Add parcels layer source (CoV)
-            mapbox.addSource('property-parcel-polygons', {
-              'type': 'geojson',
-              'data': 'https://raw.githubusercontent.com/nicholasmartino/vue-threebox/master/public/data/property-parcel-polygons.geojson',
-            });
+            // // Add parcels layer source (CoV)
+            // mapbox.addSource('property-parcel-polygons', {
+            //   'type': 'geojson',
+            //   'data': 'https://raw.githubusercontent.com/nicholasmartino/vue-threebox/master/public/data/property-parcel-polygons.geojson',
+            // });
 
             // Add parcels layer source (Surrey)
-            mapbox.addSource('property-parcel-polygons-surrey', {
+            mapbox.addSource('property-parcel-polygons-surrey-src', {
               'type': 'geojson',
-              'data': './public/data/property-parcel-surrey.geojson'
+              'data': 'https://raw.githubusercontent.com/nicholasmartino/site-divider/master/public/data/property-parcel-surrey.geojson'
             })
 
             // Add Surrey parcels layer to map
             mapbox.addLayer({
-              'id': 'property-parcel-polygons-surrey-shp',
+              'id': 'property-parcel-polygons-surrey',
               'type': 'fill',
-              'source': 'property-parcel-polygons-surrey',
+              'source': 'property-parcel-polygons-surrey-src',
               'paint': {
-                'fill-color': '#ffffff',
+                'fill-color': '#0000ff',
                 'fill-opacity': 0.2
               }
             })
 
-            // Add CoV parcels layer to map
             mapbox.addLayer({
-              'id': 'property-parcel-polygons-shp',
+              'id': 'property-parcel-polygons-surrey-highlighted',
               'type': 'fill',
-              'source': 'property-parcel-polygons',
+              'source': 'property-parcel-polygons-surrey-src',
               'paint': {
-                'fill-color': '#ffffff', // blue color fill
-                'fill-opacity': 0.2,
+                'fill-outline-color': '#484896',
+                'fill-color': '#6e599f',
+                'fill-opacity': 0.75
               },
-            });
+              // 'filter': ['in', 'PID', '']
+            })
+
+            // // Add CoV parcels layer to map
+            // mapbox.addLayer({
+            //   'id': 'property-parcel-polygons-shp',
+            //   'type': 'fill',
+            //   'source': 'property-parcel-polygons',
+            //   'paint': {
+            //     'fill-color': '#0000ff', // blue color fill
+            //     'fill-opacity': 0.2,
+            //   },
+            // });
 
             // The 'building' layer in the Mapbox Streets
             // vector tileset contains building height data
@@ -206,7 +219,7 @@ export const store = new Vuex.Store({
         },
         defaultMode: 'draw_polygon'
       });
-      this.state.mapbox.addControl(draw, 'top-left');
+      // this.state.mapbox.addControl(draw, 'top-left');
       context.commit('setDraw', draw)
     },
   }
